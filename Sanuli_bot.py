@@ -46,7 +46,7 @@ async def stop_krapolli(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             overwrite_registered_groups(registered_groups)
             await update.message.reply_text("Ok ne loppuu kyl mut miks")
         else:
-            await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open('goofy-ahh-sounds.mp3', 'rb'))
+            await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open('./goofy-ahh-sounds.mp3', 'rb'))
     else:
         await update.message.reply_text("What is bro doing")
     
@@ -83,7 +83,7 @@ async def force_polls(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
   
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    photo_path = 'ilmeeni.jpg'
+    photo_path = './ilmeeni.jpg'
     
     await update.message.reply_photo(photo=open(photo_path, 'rb'))
     
