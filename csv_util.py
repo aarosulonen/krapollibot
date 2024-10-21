@@ -40,3 +40,9 @@ def write_last_poll_id(chat_id, message_id, csv_filename='last_polls.csv'):
         writer = csv.writer(file)
         for chat, msg_id in last_polls.items():
             writer.writerow([chat, msg_id])
+
+def overwrite_registered_groups(groups, csv_filename='registered_groups.csv'):
+  with open(csv_filename, mode='w', newline='') as file:
+        csv_writer = csv.writer(file)
+        for group_id in groups:
+            csv_writer.writerow([group_id])

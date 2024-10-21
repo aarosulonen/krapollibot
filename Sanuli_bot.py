@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, ChatMemberHa
 import aiocron
 import datetime
 from bot_token import BOT_TOKEN
-from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group
+from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups
 
 token = BOT_TOKEN
 
@@ -12,10 +12,6 @@ token = BOT_TOKEN
 TESTING = False
 
 registered = False
-
-
-
-
 
 
 async def current_time_tell(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -38,10 +34,10 @@ async def stop_krapolli(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     chat_id = update.effective_chat.id
     if chat_id in registered_groups:  
         registered_groups.remove(chat_id)
-        write_registered_group(registered_groups)
+        overwrite_registered_groups(registered_groups)
         await update.message.reply_text("Ok ne loppuu kyl mut miks")
     else:
-        await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open('lego-breaking.mp3', 'rb'))
+        await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open('goofy-ahh-sounds.mp3', 'rb'))
     
     
 async def close_poll(update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id) -> None:
