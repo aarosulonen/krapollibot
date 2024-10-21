@@ -97,7 +97,6 @@ async def post_poll(bot, chat_id, question: str, options: list) -> None:
 
     
 async def start_krapollis(bot):
-        global registered
         current_time = datetime.datetime.now().strftime("%H:%M")
         aiocron.crontab('00 09 * * *', func=create_polls, args=[bot], start=True)
         await bot.send_message(5160204048, f"Bot started at {current_time}")
