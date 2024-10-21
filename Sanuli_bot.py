@@ -1,6 +1,6 @@
 import asyncio
 from telegram import Update, Poll, Bot
-from telegram.ext import Application, CommandHandler, ContextTypes, ChatMemberHandler
+from telegram.ext import Application, CommandHandler, ContextTypes
 import aiocron
 import datetime
 from bot_token import BOT_TOKEN
@@ -9,9 +9,13 @@ from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll
 token = BOT_TOKEN
 
 
-TESTING = False
+async def is_admin(update: Update) -> bool:
+    chat = update.effective_chat
+    user = update.effective_user
 
-registered = False
+    chat_member = await chat.get_member(user.id)
+
+    return chat_member.status in ["administrator", "creator"] or update.effective_chat.type not in ["group", "supergroup"]
 
 
 async def current_time_tell(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -19,25 +23,32 @@ async def current_time_tell(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     await update.message.reply_text(f"The current time is {current_time}")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if update.effective_chat.type not in ["group", "supergroup"]:
-        username = update.message.from_user.username
-        await update.message.reply_text(
-            f"1 x Huutinen käyttäjälle @{username}"
-        )
+    if await is_admin(update):
+        if update.effective_chat.type not in ["group", "supergroup"]:
+            username = update.message.from_user.username
+            await update.message.reply_text(
+                f"1 x Huutinen käyttäjälle @{username}"
+            )
+        else:
+            write_registered_group(update.effective_chat.id)
+            await update.message.reply_text("Aamul nähää")
     else:
-        write_registered_group(update.effective_chat.id)
-        await update.message.reply_text("Aamul nähää")
+        await update.message.reply_text("What is bro doing")
+    
     
     
 async def stop_krapolli(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    registered_groups = read_registered_groups()
-    chat_id = update.effective_chat.id
-    if chat_id in registered_groups:  
-        registered_groups.remove(chat_id)
-        overwrite_registered_groups(registered_groups)
-        await update.message.reply_text("Ok ne loppuu kyl mut miks")
+    if await is_admin(update):
+        registered_groups = read_registered_groups()
+        chat_id = update.effective_chat.id
+        if chat_id in registered_groups:  
+            registered_groups.remove(chat_id)
+            overwrite_registered_groups(registered_groups)
+            await update.message.reply_text("Ok ne loppuu kyl mut miks")
+        else:
+            await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open('goofy-ahh-sounds.mp3', 'rb'))
     else:
-        await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open('goofy-ahh-sounds.mp3', 'rb'))
+        await update.message.reply_text("What is bro doing")
     
     
 async def close_poll(update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id) -> None:
@@ -59,10 +70,14 @@ async def create_polls(bot: Bot) -> None:
         await post_poll(bot, chat_id, "Krapolli", ["1", "2", "3", "4", "5 (selitä)"])
 
 async def force_polls(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    #await close_polls(context.bot)
-    chat_id = update.effective_chat.id
-    await close_poll(update, context, chat_id)
-    await post_poll(context.bot, chat_id, "Krapolli", ["1", "2", "3", "4", "5 (selitä)"])
+    if await is_admin(update):
+        chat_id = update.effective_chat.id
+        await close_poll(update, context, chat_id)
+        await post_poll(context.bot, chat_id, "Krapolli", ["1", "2", "3", "4", "5 (selitä)"])
+    else:
+        await update.message.reply_text("What is bro doing")
+    
+    
 
 
 
@@ -84,12 +99,8 @@ async def post_poll(bot, chat_id, question: str, options: list) -> None:
 async def start_krapollis(bot):
         global registered
         current_time = datetime.datetime.now().strftime("%H:%M")
-        if not registered:
-            aiocron.crontab('00 09 * * *', func=create_polls, args=[bot], start=True)
-            await bot.send_message(5160204048, f"Bot started at {current_time}\nTesting = {TESTING}")
-            registered = True
-        else:
-            await bot.send_message(5160204048, f"This should not happen. start_krapollis failed somehow :D")
+        aiocron.crontab('00 09 * * *', func=create_polls, args=[bot], start=True)
+        await bot.send_message(5160204048, f"Bot started at {current_time}")
 
 def main() -> None:
     
