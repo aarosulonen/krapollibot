@@ -102,7 +102,7 @@ async def start_krapollis(bot):
         await bot.send_message(5160204048, f"Bot started at {current_time}")
         
 async def goofy_ahh(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_audio(audio=open('goofy-ahh-sounds.mp3', 'rb'))
+    await update.message.reply_audio(audio=open('/home/sulonen/krapollibot/goofy-ahh-sounds.mp3', 'rb'))
 
 def main() -> None:
     
