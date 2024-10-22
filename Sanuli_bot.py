@@ -1,10 +1,10 @@
 import asyncio
-from telegram import Update, Poll, Bot
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram import Update, Poll, Bot, PollAnswer
+from telegram.ext import Application, CommandHandler, ContextTypes, PollAnswerHandler
 import aiocron
 import datetime
 from bot_token import BOT_TOKEN
-from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups
+from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups, store_poll_id_to_chat_id, get_chat_id_from_poll_id
 
 token = BOT_TOKEN
 
@@ -78,7 +78,15 @@ async def force_polls(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         await update.message.reply_text("What is bro doing")
     
     
-
+async def log_poll_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    answer: PollAnswer = update.poll_answer
+    answered_poll_id = answer.poll_id
+    user = answer.user
+    if answer.option_ids:
+        option = answer.option_ids[0]
+        if option == 5:
+            chat_id = get_chat_id_from_poll_id(answered_poll_id)
+            await context.bot.send_message(chat_id, f"@{user.username} selitä")
 
 
   
@@ -94,6 +102,8 @@ async def post_poll(bot, chat_id, question: str, options: list) -> None:
         chat_id, question, options, type=Poll.REGULAR, is_anonymous=False
     )
     write_last_poll_id(chat_id, message.message_id)
+    poll_id = message.poll.id
+    store_poll_id_to_chat_id(poll_id, chat_id)
 
     
 async def start_krapollis(bot):
@@ -120,7 +130,7 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help))
     application.add_handler(CommandHandler("current_time", current_time_tell))
     application.add_handler(CommandHandler("moro", goofy_ahh))
-
+    application.add_handler(PollAnswerHandler(log_poll_answer))
     
     application.run_polling(allowed_updates=Update.ALL_TYPES)
     

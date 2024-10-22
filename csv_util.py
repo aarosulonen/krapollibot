@@ -46,3 +46,38 @@ def overwrite_registered_groups(groups, csv_filename='registered_groups.csv'):
         csv_writer = csv.writer(file)
         for group_id in groups:
             csv_writer.writerow([group_id])
+            
+def store_poll_id_to_chat_id(poll_id, chat_id):
+    data = []
+
+    try:
+        with open('poll_id_to_chat_id.csv', mode='r') as file:
+            reader = csv.reader(file)
+            data = list(reader)
+    except FileNotFoundError:
+        pass
+
+    updated = False
+    for row in data:
+        if row[1] == str(chat_id):
+            row[0] = poll_id
+            updated = True
+            break
+
+    if not updated:
+        data.append([poll_id, chat_id])
+
+    with open('poll_id_to_chat_id.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(data)
+
+def get_chat_id_from_poll_id(poll_id):
+    try:
+        with open('poll_id_to_chat_id.csv', mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row[0] == poll_id:
+                    return row[1]
+    except FileNotFoundError:
+        print("CSV file not found.")
+    return None
