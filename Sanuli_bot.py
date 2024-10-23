@@ -5,7 +5,7 @@ import aiocron
 import datetime
 from bot_token import BOT_TOKEN
 from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups, store_poll_id_to_chat_id, get_chat_id_from_poll_id, store_poll_answer
-from analysis import calculate_average_time_first_non_zero
+from analysis import calculate_average_time_first_non_zero, calculate_average_first_non_zero, calculate_average_option_for_user
 
 token = BOT_TOKEN
 
@@ -118,11 +118,21 @@ async def goofy_ahh(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
 async def average_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
-    average = calculate_average_time_first_non_zero(chat_id)
-    if average:
-        await update.message.reply_text(f"Eka krapula hittaa keskimäärin {average}")
+    average_first_time = calculate_average_time_first_non_zero(chat_id)
+    average_first_krapula = calculate_average_first_non_zero(chat_id)
+    if average_first_time:
+        await update.message.reply_text(f"Eka krapula hittaa keskimäärin {average_first_time}\nEnsimmäisen krapulan voimakkuus on keskimäärin {average_first_krapula}")
     else:
         await update.message.reply_text("Tässä ryhmässä ei oo koskaan ollu krapulaa")
+
+async def personal_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    username = update.effective_user.username
+    average, count = calculate_average_option_for_user(chat_id, username)
+    if average:
+        await update.message.reply_text(f"Käyttäjän {username} keskiverto krapula on {average}\nHänellä on ollut krapula {count} kertaa.")
+    else:
+        await update.message.reply_text(f"{username} on krapulaton")
 
 def main() -> None:
     
@@ -141,7 +151,9 @@ def main() -> None:
     application.add_handler(CommandHandler("current_time", current_time_tell))
     application.add_handler(CommandHandler("moro", goofy_ahh))
     application.add_handler(PollAnswerHandler(log_poll_answer))
-    application.add_handler(CommandHandler("millon_krapula", average_time))
+    application.add_handler(CommandHandler("eka_krapula", average_time))
+    application.add_handler(CommandHandler("meitsi", personal_stats))
+    
     
     application.run_polling(allowed_updates=Update.ALL_TYPES)
     

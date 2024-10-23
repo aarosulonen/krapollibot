@@ -24,11 +24,9 @@ def calculate_average_first_non_zero(chat_id):
     answers_by_poll = get_poll_answers_by_chat(chat_id)
     first_non_zero_answers = []
 
-    for poll_id, answers in answers_by_poll.items():
-        for answer in answers:
-            if answer != 0:
-                first_non_zero_answers.append(answer)
-                break 
+    for id, answer_data in answers_by_poll.items():
+      if answer_data[0][0] != 0:
+          first_non_zero_answers.append(answer_data[0][0])
 
     if first_non_zero_answers:
         average = sum(first_non_zero_answers) / len(first_non_zero_answers)
@@ -55,3 +53,22 @@ def calculate_average_time_first_non_zero(chat_id):
         return average_time
     else:
         return None
+      
+def calculate_average_option_for_user(chat_id, username):
+    data = read_poll_answers()
+    total_option_value = 0
+    count = 0
+
+    for row in data:
+        if row[0] == str(chat_id) and row[4] == username:
+            chosen_option = int(row[2])
+            if chosen_option != 0:
+              total_option_value += chosen_option
+              count += 1
+
+
+    if count > 0:
+        average_option = total_option_value / count
+        return (average_option, count)
+    else:
+        return (None, None)
