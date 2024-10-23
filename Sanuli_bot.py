@@ -101,13 +101,17 @@ async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
 
 
-async def post_poll(bot, chat_id, question: str, options: list) -> None:
+async def post_poll(bot: Bot, chat_id, question: str, options: list) -> None:
     message = await bot.send_poll(
         chat_id, question, options, type=Poll.REGULAR, is_anonymous=False
     )
     write_last_poll_id(chat_id, message.message_id)
     poll_id = message.poll.id
     store_poll_id_to_chat_id(poll_id, chat_id)
+    try:
+        await bot.pin_chat_message(chat_id, message.message_id, disable_notification=True)
+    except Exception as e:
+        print(e)
 
     
 async def start_krapollis(bot):
