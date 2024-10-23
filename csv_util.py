@@ -89,10 +89,9 @@ def store_poll_answer(poll_id, chat_id, chosen_option, answer_timestamp, usernam
     
     updated = False
     for row in data:
-        if row[1] == str(poll_id):
+        if row[0] == str(chat_id) and row[1] == str(poll_id) and row[4] == username:
             row[2] = chosen_option
-            row[3] = answer_timestamp
-            row[4] = username
+            row[3] = answer_timestamp  
             updated = True
             break
 
@@ -111,4 +110,4 @@ def read_poll_answers():
             data = list(reader)
     except FileNotFoundError:
         pass
-    return data
+    return list(reversed(data))

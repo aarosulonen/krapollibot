@@ -25,12 +25,14 @@ def calculate_average_first_non_zero(chat_id):
     first_non_zero_answers = []
 
     for id, answer_data in answers_by_poll.items():
-      if answer_data[0][0] != 0:
-          first_non_zero_answers.append(answer_data[0][0])
+      for option, timestamp in answer_data:
+        if option != 0:
+            first_non_zero_answers.append(answer_data[0][0])
+            break
 
     if first_non_zero_answers:
         average = sum(first_non_zero_answers) / len(first_non_zero_answers)
-        return average
+        return round(average, 2)
     else:
         return None
 
@@ -40,7 +42,7 @@ def calculate_average_time_first_non_zero(chat_id):
 
     for poll_id, answers in answers_by_poll.items():
         for chosen_option, answer_timestamp in answers:
-            if chosen_option != 0:
+            if chosen_option != 0 and answer_timestamp != "null":
                 timestamp = datetime.strptime(answer_timestamp, '%Y-%m-%d %H:%M:%S')
                 time_in_seconds = timestamp.hour * 3600 + timestamp.minute * 60 + timestamp.second
                 first_non_zero_times.append(time_in_seconds)
