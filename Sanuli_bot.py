@@ -121,7 +121,7 @@ async def average_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     average_first_time = calculate_average_time_first_non_zero(chat_id)
     average_first_krapula = calculate_average_first_non_zero(chat_id)
     if average_first_time:
-        await update.message.reply_text(f"Eka krapula hittaa keskimäärin {average_first_time}\nEnsimmäisen krapulan voimakkuus on keskimäärin {average_first_krapula}")
+        await update.message.reply_text(f"Eka krapula hittaa keskimäärin {average_first_time}\nEnsimmäisen krapulan voimakkuus on keskimäärin {average_first_krapula:.2f}")
     else:
         await update.message.reply_text("Tässä ryhmässä ei oo koskaan ollu krapulaa")
 
@@ -130,7 +130,7 @@ async def personal_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.effective_user.username
     average, count = calculate_average_option_for_user(chat_id, username)
     if average:
-        await update.message.reply_text(f"Käyttäjän {username} keskiverto krapula on {average}\nHänellä on ollut krapula {count} kertaa.")
+        await update.message.reply_text(f"Käyttäjän {username} keskiverto krapula on {average:.2f}\nHänellä on ollut krapula {count} kertaa.")
     else:
         await update.message.reply_text(f"{username} on krapulaton")
 
