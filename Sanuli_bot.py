@@ -51,28 +51,27 @@ async def stop_krapolli(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await update.message.reply_text("What is bro doing")
     
     
-async def close_poll(update: Update, context: ContextTypes.DEFAULT_TYPE, chat_id) -> None:
-    chat_id = update.effective_chat.id 
+async def close_poll(bot, chat_id) -> None: 
     last_polls = read_last_poll_ids() 
     
     if chat_id in last_polls:
         message_id = last_polls[chat_id]
         try:
-            await context.bot.stop_poll(chat_id=chat_id, message_id=message_id)
+            await bot.stop_poll(chat_id=chat_id, message_id=message_id)
         except Exception as e:
             print(f"Couldn't stop poll: {e}")
-            await update.message.reply_text(f"Couldn't stop poll: {e}")
         
 
 async def create_polls(bot: Bot) -> None:
     registered_groups = read_registered_groups()
     for chat_id in registered_groups:
+        
         await post_poll(bot, chat_id, "Krapolli", ["0", "1", "2", "3", "4", "5 (selitä)"])
 
 async def force_polls(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if await is_admin(update):
         chat_id = update.effective_chat.id
-        await close_poll(update, context, chat_id)
+        await close_poll(context.bot, chat_id)
         await post_poll(context.bot, chat_id, "Krapolli", ["0", "1", "2", "3", "4", "5 (selitä)"])
     else:
         await update.message.reply_text("What is bro doing")
