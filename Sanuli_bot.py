@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, PollAnswerHa
 import aiocron
 import datetime
 from bot_token import BOT_TOKEN
-from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups, store_poll_id_to_chat_id, get_chat_id_from_poll_id
+from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups, store_poll_id_to_chat_id, get_chat_id_from_poll_id, store_poll_answer
 
 token = BOT_TOKEN
 
@@ -79,12 +79,14 @@ async def force_polls(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     
 async def log_poll_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     answer: PollAnswer = update.poll_answer
-    answered_poll_id = answer.poll_id
-    user = answer.user
     if answer.option_ids:
+        answered_poll_id = answer.poll_id
+        user = answer.user
+        chat_id = get_chat_id_from_poll_id(answered_poll_id)
         option = answer.option_ids[0]
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        store_poll_answer(answered_poll_id, chat_id, option, timestamp, user.username)
         if option == 5:
-            chat_id = get_chat_id_from_poll_id(answered_poll_id)
             await context.bot.send_message(chat_id, f"@{user.username} selitä")
 
 
