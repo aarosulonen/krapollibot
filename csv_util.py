@@ -1,5 +1,7 @@
 import csv
 
+ANSWER_FILE = 'answers_data.csv'
+
 def read_registered_groups(csv_filename='registered_groups.csv'):
     registered_groups = set()
     try:
@@ -81,3 +83,32 @@ def get_chat_id_from_poll_id(poll_id):
     except FileNotFoundError:
         print("CSV file not found.")
     return None
+
+def store_poll_answer(poll_id, chat_id, chosen_option, answer_timestamp, username):
+    data = read_poll_answers()
+    
+    updated = False
+    for row in data:
+        if row[1] == str(poll_id):
+            row[2] = chosen_option
+            row[3] = answer_timestamp
+            row[4] = username
+            updated = True
+            break
+
+    if not updated:
+        data.append([chat_id, poll_id, chosen_option, answer_timestamp, username])
+
+    with open(ANSWER_FILE, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(data)
+        
+def read_poll_answers():
+    data = []
+    try:
+        with open(ANSWER_FILE, mode='r') as file:
+            reader = csv.reader(file)
+            data = list(reader)
+    except FileNotFoundError:
+        pass
+    return data
