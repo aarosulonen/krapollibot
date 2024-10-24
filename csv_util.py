@@ -111,3 +111,11 @@ def read_poll_answers():
     except FileNotFoundError:
         pass
     return list(reversed(data))
+
+def groupid_in_file(group_id, csv_filename='last_polls.csv') -> bool:
+    last_polls = read_last_poll_ids(csv_filename)
+    return group_id in last_polls
+
+def delete_closed_poll_data(csv_filename='last_polls.csv'):
+    with open(csv_filename, mode='w', newline='') as file:
+        pass

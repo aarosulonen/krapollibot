@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, PollAnswerHa
 import aiocron
 import datetime
 from bot_token import BOT_TOKEN
-from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups, store_poll_id_to_chat_id, get_chat_id_from_poll_id, store_poll_answer
+from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups, store_poll_id_to_chat_id, get_chat_id_from_poll_id, store_poll_answer, groupid_in_file, delete_closed_poll_data
 from analysis import calculate_average_time_first_non_zero, calculate_average_first_non_zero, calculate_average_option_for_user
 
 token = BOT_TOKEN
@@ -53,27 +53,28 @@ async def stop_krapolli(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await update.message.reply_text("What is bro doing")
     
     
-async def close_poll(bot, chat_id) -> None: 
-    last_polls = read_last_poll_ids() 
-    
-    if chat_id in last_polls:
-        message_id = last_polls[chat_id]
+async def close_poll(bot) -> None: 
+    last_polls = read_last_poll_ids()
+    delete_closed_poll_data()
+    for chat, poll in last_polls.items():
         try:
-            await bot.stop_poll(chat_id=chat_id, message_id=message_id)
+            await bot.stop_poll(chat_id=chat, message_id=poll)
         except Exception as e:
             print(f"Couldn't stop poll: {e}")
         
 
-async def create_polls(bot: Bot) -> None:
-    registered_groups = read_registered_groups()
-    for chat_id in registered_groups:
-        
-        await post_poll(bot, chat_id, "Krapolli", ["0", "1", "2", "3", "4", "5 (selitä)"])
 
-async def force_polls(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+async def post_krapolli(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = update.effective_chat.id
+    if not groupid_in_file(chat_id):
+        await post_poll(context.bot, chat_id, "Krapolli", ["0", "1", "2", "3", "4", "5 (selitä)"])
+    else:
+        await update.message.reply_text("Krapolli postattiin jo tänään. 8.00 voi postaa uuden")
+
+async def force_poll(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = update.effective_chat.id
     if await is_admin(update):
-        chat_id = update.effective_chat.id
-        await close_poll(context.bot, chat_id)
         await post_poll(context.bot, chat_id, "Krapolli", ["0", "1", "2", "3", "4", "5 (selitä)"])
     else:
         await update.message.reply_text("What is bro doing")
@@ -114,9 +115,9 @@ async def post_poll(bot: Bot, chat_id, question: str, options: list) -> None:
         print(e)
 
     
-async def start_krapollis(bot):
+async def close_krapollis(bot):
         current_time = datetime.datetime.now().strftime("%H:%M")
-        aiocron.crontab('00 09 * * *', func=create_polls, args=[bot], start=True)
+        aiocron.crontab('00 08 * * *', func=close_poll, args=[bot], start=True)
         
 async def goofy_ahh(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # I dont know why this need the absolute path to work :D raspi is weird
@@ -125,9 +126,8 @@ async def goofy_ahh(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def average_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     average_first_time = calculate_average_time_first_non_zero(chat_id)
-    average_first_krapula = calculate_average_first_non_zero(chat_id)
     if average_first_time:
-        await update.message.reply_text(f"Eka krapula hittaa keskimäärin {average_first_time}\nEnsimmäisen krapulan voimakkuus on keskimäärin {average_first_krapula:.2f}")
+        await update.message.reply_text(f"Eka krapula hittaa keskimäärin {average_first_time}")
     else:
         await update.message.reply_text("Tässä ryhmässä ei oo koskaan ollu krapulaa")
 
@@ -147,18 +147,20 @@ def main() -> None:
     loop = asyncio.get_event_loop()
 
     
-    loop.run_until_complete(start_krapollis(bot))
+    loop.run_until_complete(close_krapollis(bot))
 
   
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("stop", stop_krapolli))
-    application.add_handler(CommandHandler("force_poll", force_polls))
+    application.add_handler(CommandHandler("krapolli", post_krapolli))
     application.add_handler(CommandHandler("help", help))
     application.add_handler(CommandHandler("current_time", current_time_tell))
     application.add_handler(CommandHandler("moro", goofy_ahh))
     application.add_handler(PollAnswerHandler(log_poll_answer))
     application.add_handler(CommandHandler("eka_krapula", average_time))
     application.add_handler(CommandHandler("meitsi", personal_stats))
+    application.add_handler(CommandHandler("force_poll", force_poll))
+    
     
     
     application.run_polling(allowed_updates=Update.ALL_TYPES)
