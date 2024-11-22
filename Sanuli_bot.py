@@ -167,8 +167,22 @@ def main() -> None:
     application.add_handler(CommandHandler("meitsi", personal_stats))
     application.add_handler(CommandHandler("force_poll", force_poll))
     application.add_handler(CommandHandler("milloinviimeks5", last_mega_krapula))
+  
+  
+    commands = [
+        ("start", "Aloita botin käyttö"),
+        ("stop", "Lopeta botin käyttö"),
+        ("krapolli", "Postaa päivän krapolli"),
+        ("help", "Näytä hauska kissa"),
+        ("current_time", "Näytä nykyinen aika"),
+        ("moro", "Goofy ahh"),
+        ("eka_krapula", "Näytä keskimääräinen ensimmäinen krapula-aika"),
+        ("meitsi", "Näytä henkilökohtaiset krapulatilastot"),
+        ("force_poll", "Pakota uusi krapolli (admin abuse)"),
+        ("milloinviimeks5", "Näytä viimeisin 5-tason krapula")
+    ]
     
-    
+    loop.run_until_complete(application.bot.set_my_commands(commands))
     
     application.run_polling(allowed_updates=Update.ALL_TYPES)
     
