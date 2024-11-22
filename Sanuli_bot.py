@@ -5,7 +5,7 @@ import aiocron
 import datetime
 from bot_token import BOT_TOKEN
 from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups, store_poll_id_to_chat_id, get_chat_id_from_poll_id, store_poll_answer, groupid_in_file, delete_closed_poll_data
-from analysis import calculate_average_time_first_non_zero, calculate_average_first_non_zero, calculate_average_option_for_user
+from analysis import calculate_average_time_first_non_zero, calculate_average_first_non_zero, calculate_average_option_for_user, last_5_krapula
 
 token = BOT_TOKEN
 
@@ -139,6 +139,14 @@ async def personal_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Käyttäjän {username} keskiverto krapula on {average:.2f}\nHänellä on ollut krapula {count} kertaa.")
     else:
         await update.message.reply_text(f"{username} on krapulaton")
+        
+async def last_mega_krapula(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    timestamp, username = last_5_krapula(chat_id)
+    if timestamp:
+        await update.message.reply_text(f"Viimeisin 5 krapula oli käyttäjältä {username} ajassa {timestamp}")
+    else:
+        await update.message.reply_text("Tässä ryhmässä ei oo koskaan ollu 5 krapulaa")
 
 def main() -> None:
     
@@ -146,10 +154,8 @@ def main() -> None:
     bot = application.bot    
     loop = asyncio.get_event_loop()
 
-    
     loop.run_until_complete(close_krapollis(bot))
-
-  
+    
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("stop", stop_krapolli))
     application.add_handler(CommandHandler("krapolli", post_krapolli))
@@ -160,6 +166,7 @@ def main() -> None:
     application.add_handler(CommandHandler("eka_krapula", average_time))
     application.add_handler(CommandHandler("meitsi", personal_stats))
     application.add_handler(CommandHandler("force_poll", force_poll))
+    application.add_handler(CommandHandler("milloinviimeks5", last_mega_krapula))
     
     
     
