@@ -110,7 +110,7 @@ def read_poll_answers():
             data = list(reader)
     except FileNotFoundError:
         pass
-    return list(reversed(data))
+    return data
 
 def groupid_in_file(group_id, csv_filename='last_polls.csv') -> bool:
     last_polls = read_last_poll_ids(csv_filename)

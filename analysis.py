@@ -76,7 +76,7 @@ def calculate_average_option_for_user(chat_id, username):
         return (None, None)
 #The last time a number 5 was answered
 def last_5_krapula(chat_id):
-    data = read_poll_answers()
+    data = list(reversed(read_poll_answers()))
     
     for row in data:
         if row[0] == str(chat_id) and row[2] == "5":

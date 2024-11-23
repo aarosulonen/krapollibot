@@ -185,7 +185,7 @@ def main() -> None:
     loop.run_until_complete(application.bot.set_my_commands(commands))
     
     application.run_polling(allowed_updates=Update.ALL_TYPES)
-    
+
 if __name__ == "__main__":
     main()
 
