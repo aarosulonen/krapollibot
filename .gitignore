@@ -1,5 +1,4 @@
-bot_token.py
-registered_groups.csv
-last_polls.csv
 *.csv
 __pycache__/
+*.txt
+bot_token.py
