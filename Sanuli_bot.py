@@ -5,7 +5,7 @@ import aiocron
 import datetime
 from bot_token import BOT_TOKEN
 from csv_util import read_last_poll_ids, read_registered_groups, write_last_poll_id, write_registered_group, overwrite_registered_groups, store_poll_id_to_chat_id, get_chat_id_from_poll_id, store_poll_answer, groupid_in_file, delete_closed_poll_data
-from analysis import calculate_average_time_first_non_zero, calculate_average_first_non_zero, calculate_average_option_for_user, last_5_krapula
+from analysis import calculate_average_time_first_non_zero, calculate_average_first_non_zero, calculate_average_option_for_user, last_5_krapula, calculate_score_streak
 
 token = BOT_TOKEN
 
@@ -148,6 +148,17 @@ async def last_mega_krapula(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Tässä ryhmässä ei oo koskaan ollu 5 krapulaa")
 
+async def best_streak(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    username = update.effective_user.username
+    streak, dates = calculate_score_streak(chat_id, username)
+    if streak == 1:
+        await update.message.reply_text(f"Käyttäjän {username} paras krapulaputki on {streak} päivä.")
+    elif streak:
+        await update.message.reply_text(f"Käyttäjän {username} paras krapulaputki on {streak} päivää.\nKrapulaputki alkoi {dates[0]} ja päättyi {dates[-1]}")
+    else:
+        await update.message.reply_text(f"{username} on krapulaton")
+
 def main() -> None:
     
     application = Application.builder().token(token).build()
@@ -167,19 +178,18 @@ def main() -> None:
     application.add_handler(CommandHandler("meitsi", personal_stats))
     application.add_handler(CommandHandler("force_poll", force_poll))
     application.add_handler(CommandHandler("milloinviimeks5", last_mega_krapula))
+    application.add_handler(CommandHandler("putki", best_streak))
   
   
     commands = [
-        ("start", "Aloita botin käyttö"),
-        ("stop", "Lopeta botin käyttö"),
         ("krapolli", "Postaa päivän krapolli"),
         ("help", "Näytä hauska kissa"),
-        ("current_time", "Näytä nykyinen aika"),
         ("moro", "Goofy ahh"),
         ("eka_krapula", "Näytä keskimääräinen ensimmäinen krapula-aika"),
         ("meitsi", "Näytä henkilökohtaiset krapulatilastot"),
         ("force_poll", "Pakota uusi krapolli (admin abuse)"),
-        ("milloinviimeks5", "Näytä viimeisin 5-tason krapula")
+        ("milloinviimeks5", "Näytä viimeisin 5-tason krapula"),
+        ("putki", "Näytä paras krapulaputki")
     ]
     
     loop.run_until_complete(application.bot.set_my_commands(commands))
