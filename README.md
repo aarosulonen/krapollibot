@@ -30,8 +30,8 @@ Krapollibot is a Telegram bot designed to manage and analyze polls in group chat
     ```
 
 3. **Configure your Telegram bot token**:
-    - Create a file named [bot_token.py](http://_vscodecontentref_/1) in the project directory.
-    - Add the following line to [bot_token.py](http://_vscodecontentref_/2):
+    - Create a file named [bot_token.py] in the project directory.
+    - Add the following line to [bot_token.py]:
       ```python
       BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
       ```
@@ -50,11 +50,11 @@ Add the bot to your Telegram group to start creating and managing polls.
 
 ### `answers_data.csv`
 Stores poll answers with fields:
-- [chat_id](http://_vscodecontentref_/3)
-- [poll_id](http://_vscodecontentref_/4)
-- [chosen_option](http://_vscodecontentref_/5)
-- [answer_timestamp](http://_vscodecontentref_/6)
-- [username](http://_vscodecontentref_/7)
+- [chat_id]
+- [poll_id]
+- [chosen_option]
+- [answer_timestamp]
+- [username]
 
 ### [registered_groups.csv](http://_vscodecontentref_/8)
 Stores the IDs of registered groups.
