@@ -1,4 +1,3 @@
-import csv
 from csv_util import read_poll_answers
 from datetime import datetime, timedelta
 
@@ -83,4 +82,45 @@ def last_5_krapula(chat_id):
             return (row[3], row[4])
     return (None, None)
     
+def calculate_score_streak(chat_id, username):
+    data = read_poll_answers()
+    relevant_rows = [
+        row for row in data
+        if row[0] == str(chat_id) and row[4] == username and int(row[2]) != 0 and row[3] != "null"
+    ]
     
+    dates = []
+    for row in relevant_rows:
+        date_str = row[3]
+        current_date = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S').date()
+        if current_date not in dates:
+            dates.append(current_date)
+
+    dates.sort()
+    
+    if not dates:
+        return (None, None)
+    
+    longest_streak = 1
+    current_streak = 1
+    best_segment = [dates[0]]
+    current_segment = [dates[0]]
+
+    for i in range(1, len(dates)):
+        if (dates[i] - dates[i - 1]).days == 1:
+            current_streak += 1
+            current_segment.append(dates[i])
+        else:
+            if current_streak > longest_streak:
+                longest_streak = current_streak
+                best_segment = current_segment
+            current_streak = 1
+            current_segment = [dates[i]]
+
+    if current_streak > longest_streak:
+        longest_streak = current_streak
+        best_segment = current_segment
+
+    best_segment_str = [d.isoformat() for d in best_segment]
+
+    return (longest_streak, best_segment_str)
