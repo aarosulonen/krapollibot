@@ -50,16 +50,16 @@ Add the bot to your Telegram group to start creating and managing polls.
 
 ### `answers_data.csv`
 Stores poll answers with fields:
-- [chat_id]
-- [poll_id]
-- [chosen_option]
-- [answer_timestamp]
-- [username]
+- chat_id
+- poll_id
+- chosen_option
+- answer_timestamp
+- username
 
-### [registered_groups.csv](http://_vscodecontentref_/8)
+### registered_groups.csv
 Stores the IDs of registered groups.
 
-### [last_polls.csv](http://_vscodecontentref_/9)
+### last_polls.csv
 Stores the last poll IDs for each group.
 
 ### `poll_id_to_chat_id.csv`
