@@ -61,7 +61,7 @@ def calculate_average_option_for_user(chat_id, user_id, username=None):
     count = 0
 
     for row in data:
-        if row[0] == str(chat_id) and row[5] == str(user_id):  # Use user_id instead of username
+        if row[0] == str(chat_id) and row[5] == str(user_id):
             chosen_option = int(row[2])
             if chosen_option != 0:
                 total_option_value += chosen_option
@@ -85,7 +85,6 @@ def last_5_krapula(chat_id):
 def calculate_score_streak(chat_id, user_id, username=None):
     data = read_poll_answers()
     
-    # More robust handling of row data
     relevant_rows = []
     for row in data:
         if row[0] != str(chat_id):
@@ -109,13 +108,16 @@ def calculate_score_streak(chat_id, user_id, username=None):
             
         relevant_rows.append(row)
     
-    # Rest of your function remains the same
     dates = []
     for row in relevant_rows:
         date_str = row[3]
-        current_date = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S').date()
-        if current_date not in dates:
-            dates.append(current_date)
+        try:
+            current_date = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S').date()
+            if current_date not in dates:
+                dates.append(current_date)
+        except ValueError:
+            # Skip rows with invalid date format
+            continue
 
     dates.sort()
     

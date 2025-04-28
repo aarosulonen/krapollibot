@@ -89,11 +89,10 @@ def store_poll_answer(poll_id, chat_id, chosen_option, answer_timestamp, usernam
     
     updated = False
     for row in data:
-        # Check by user_id instead of username for uniqueness
         if row[0] == str(chat_id) and row[1] == str(poll_id) and row[5] == str(user_id):
             row[2] = chosen_option
             row[3] = answer_timestamp  
-            row[4] = username  # Update username in case it changed
+            row[4] = username
             updated = True
             break
 
