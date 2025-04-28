@@ -84,11 +84,32 @@ def last_5_krapula(chat_id):
     
 def calculate_score_streak(chat_id, user_id, username=None):
     data = read_poll_answers()
-    relevant_rows = [
-        row for row in data
-        if row[0] == str(chat_id) and row[5] == str(user_id) and int(row[2]) != 0 and row[3] != "null"
-    ]
     
+    # More robust handling of row data
+    relevant_rows = []
+    for row in data:
+        if row[0] != str(chat_id):
+            continue
+            
+        # Skip rows that don't have enough fields
+        if len(row) < 6:
+            continue
+            
+        # Check if we have a valid user_id match
+        row_user_id = row[5].strip() if row[5] else None
+        if not row_user_id or row_user_id != str(user_id):
+            continue
+            
+        # Check for non-zero answer
+        try:
+            if int(row[2]) == 0 or row[3] == "null":
+                continue
+        except (ValueError, IndexError):
+            continue
+            
+        relevant_rows.append(row)
+    
+    # Rest of your function remains the same
     dates = []
     for row in relevant_rows:
         date_str = row[3]
