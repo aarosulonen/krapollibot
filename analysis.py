@@ -55,24 +55,24 @@ def calculate_average_time_first_non_zero(chat_id):
     else:
         return None
       
-def calculate_average_option_for_user(chat_id, username):
+def calculate_average_option_for_user(chat_id, user_id, username=None):
     data = read_poll_answers()
     total_option_value = 0
     count = 0
 
     for row in data:
-        if row[0] == str(chat_id) and row[4] == username:
+        if row[0] == str(chat_id) and row[5] == str(user_id):  # Use user_id instead of username
             chosen_option = int(row[2])
             if chosen_option != 0:
-              total_option_value += chosen_option
-              count += 1
-
+                total_option_value += chosen_option
+                count += 1
 
     if count > 0:
         average_option = total_option_value / count
         return (average_option, count)
     else:
         return (None, None)
+
 #The last time a number 5 was answered
 def last_5_krapula(chat_id):
     data = list(reversed(read_poll_answers()))
@@ -82,11 +82,11 @@ def last_5_krapula(chat_id):
             return (row[3], row[4])
     return (None, None)
     
-def calculate_score_streak(chat_id, username):
+def calculate_score_streak(chat_id, user_id, username=None):
     data = read_poll_answers()
     relevant_rows = [
         row for row in data
-        if row[0] == str(chat_id) and row[4] == username and int(row[2]) != 0 and row[3] != "null"
+        if row[0] == str(chat_id) and row[5] == str(user_id) and int(row[2]) != 0 and row[3] != "null"
     ]
     
     dates = []

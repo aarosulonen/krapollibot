@@ -84,19 +84,21 @@ def get_chat_id_from_poll_id(poll_id):
         print("CSV file not found.")
     return None
 
-def store_poll_answer(poll_id, chat_id, chosen_option, answer_timestamp, username):
+def store_poll_answer(poll_id, chat_id, chosen_option, answer_timestamp, username, user_id):
     data = read_poll_answers()
     
     updated = False
     for row in data:
-        if row[0] == str(chat_id) and row[1] == str(poll_id) and row[4] == username:
+        # Check by user_id instead of username for uniqueness
+        if row[0] == str(chat_id) and row[1] == str(poll_id) and row[5] == str(user_id):
             row[2] = chosen_option
             row[3] = answer_timestamp  
+            row[4] = username  # Update username in case it changed
             updated = True
             break
 
     if not updated:
-        data.append([chat_id, poll_id, chosen_option, answer_timestamp, username])
+        data.append([chat_id, poll_id, chosen_option, answer_timestamp, username, user_id])
 
     with open(ANSWER_FILE, mode='w', newline='') as file:
         writer = csv.writer(file)

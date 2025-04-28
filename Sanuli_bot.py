@@ -88,7 +88,7 @@ async def log_poll_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         chat_id = get_chat_id_from_poll_id(answered_poll_id)
         option = answer.option_ids[0]
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        store_poll_answer(answered_poll_id, chat_id, option, timestamp, user.username)
+        store_poll_answer(answered_poll_id, chat_id, option, timestamp, user.username, user.id)
         if option == 5:
             await context.bot.send_message(chat_id, f"@{user.username} selitä")
 
@@ -120,7 +120,7 @@ async def close_krapollis(bot):
         aiocron.crontab('00 08 * * *', func=close_poll, args=[bot], start=True)
         
 async def goofy_ahh(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # I dont know why this need the absolute path to work :D raspi is weird
+    # I dont know why this needs the absolute path to work :D raspi is weird
     await update.message.reply_audio(audio=open('/home/sulonen/krapollibot/goofy-ahh-sounds.mp3', 'rb'))
     
 async def average_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -134,7 +134,8 @@ async def average_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def personal_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     username = update.effective_user.username
-    average, count = calculate_average_option_for_user(chat_id, username)
+    user_id = update.effective_user.id
+    average, count = calculate_average_option_for_user(chat_id, user_id, username)
     if average:
         await update.message.reply_text(f"Käyttäjän {username} keskiverto krapula on {average:.2f}\nHänellä on ollut krapula {count} kertaa.")
     else:
@@ -151,7 +152,8 @@ async def last_mega_krapula(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def best_streak(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     username = update.effective_user.username
-    streak, dates = calculate_score_streak(chat_id, username)
+    user_id = update.effective_user.id
+    streak, dates = calculate_score_streak(chat_id, user_id, username)
     if streak == 1:
         await update.message.reply_text(f"Käyttäjän {username} paras krapulaputki on {streak} päivä.")
     elif streak:
