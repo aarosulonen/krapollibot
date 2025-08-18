@@ -47,8 +47,7 @@ async def stop_krapolli(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             overwrite_registered_groups(registered_groups)
             await update.message.reply_text("Ok ne loppuu kyl mut miks")
         else:
-            # I dont know why this need the absolute path to work :D raspi is weird
-            await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open('/home/sulonen/krapollibot/goofy-ahh-sounds.mp3', 'rb'))
+            await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open('goofy-ahh-sounds.mp3', 'rb'))
     else:
         await update.message.reply_text("What is bro doing")
     
@@ -96,7 +95,7 @@ async def log_poll_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
   
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # I dont know why this need the absolute path to work :D raspi is weird
-    photo_path = '/home/sulonen/krapollibot/ilmeeni.jpg'
+    photo_path = 'ilmeeni.jpg'
     
     await update.message.reply_photo(photo=open(photo_path, 'rb'))
     
@@ -120,8 +119,7 @@ async def close_krapollis(bot):
         aiocron.crontab('00 08 * * *', func=close_poll, args=[bot], start=True)
         
 async def goofy_ahh(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # I dont know why this needs the absolute path to work :D raspi is weird
-    await update.message.reply_audio(audio=open('/home/sulonen/krapollibot/goofy-ahh-sounds.mp3', 'rb'))
+    await update.message.reply_audio(audio=open('goofy-ahh-sounds.mp3', 'rb'))
     
 async def average_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
